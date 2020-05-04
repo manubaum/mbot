@@ -10,12 +10,12 @@
 /*
 
   Hardware:
-  Port1       Ultrasonic (rotating)
-  Port2       RJ25 output
-      Slot 1: Analog Servo
-      Slot 2: -
-  Port3       Ultrasonic (facing down)
-  Port4       4 digit 7-segment display
+  Port1         Ultrasonic (rotating)
+  Port2         RJ25 output
+      Slot 1:   Analog Servo
+      Slot 2:   -
+  Port3         Ultrasonic (facing down)
+  Port4         4 digit 7-segment display
 */
 
 //Port 1
@@ -31,6 +31,9 @@ MeUltrasonicSensor lowerUltrasonic(PORT_3);
 // Port 4
 Me7SegmentDisplay display(PORT_4);
 
+
+MeRGBLed rgbled(7, 2);
+
 boolean stateLED = false; // true -> on, false -> off
 boolean stateDisplay = false; //true -> on, false -> off
 
@@ -41,6 +44,12 @@ uint8_t Bitmap_Heart[16]=
 {
  0x00,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,
 };
+
+volatile byte state = LOW;
+
+volatile uint16_t angle = 0;
+volatile uint16_t rotation_direction = 1; // is 1 or -1
+volatile uint16_t rotation_speed = 2; // is 1 or -1
 
 
 void _delay(float seconds) {
@@ -54,10 +63,18 @@ void setup() {
   Serial.begin(9600);
 
   servo.attach(port_2.pin1());
-  servo.write(90);
+  
 
-  delay(20);
+  display.init();
+  display.set(BRIGHTNESS_2);
+  //splay.display((uint8_t)1, (uint8_t)1);
 
+  TIMSK2 = (TIMSK2 & B11111110) | 0x01;
+  TCCR2B = (TCCR2B & B11111000) | 0x07;
+
+
+  rgbled.setColor(0,255,255,255);
+  rgbled.show();
 }
 
 
@@ -69,11 +86,48 @@ void loop() {
   _loop();
 
 
+//for (uint16_t angle = 0; angle < 180; angle++){
+   display.display((uint16_t)angle);
+   //display.display(rotatingUltrasonic.distanceCm());
+   servo.write(angle);
+//   delay(100);
+//}
 
+
+ // servo.write(0);
+   // delay(1000);//ms
+
+
+
+  // delay(10);//ms
+}
+
+
+
+ISR(TIMER2_OVF_vect){
+
+    angle += (rotation_direction * rotation_speed);
+
+    if(angle>=180){
+      rotation_direction = -1;  
+    }
+    else if(angle <= 0)
+    {
+      rotation_direction = 1;  
+    }
 
   
+   state = !state;
 
-
-
-  delay(10);//ms
+   if(state==LOW){
+         //rgbled.setColor(0,255,0,0);
+         //rgbled.show();
+    
+    }
+    else
+    {
+      
+        //rgbled.setColor(0,0,255,0);
+        //rgbled.show();
+      }
 }

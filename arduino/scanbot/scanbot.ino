@@ -34,16 +34,17 @@ Me7SegmentDisplay display(PORT_4);
 
 MeRGBLed rgbled(7, 2);
 
+MeDCMotor motor_left(9);
+MeDCMotor motor_right(10);
+
+
 boolean stateLED = false; // true -> on, false -> off
 boolean stateDisplay = false; //true -> on, false -> off
 
 char string_data[] = "Hallo Maro";
 int move_times = sizeof(string_data)*6;
 
-uint8_t Bitmap_Heart[16]=
-{
- 0x00,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,
-};
+int distanceToAobstacle[180];
 
 volatile byte state = LOW;
 
@@ -63,18 +64,23 @@ void setup() {
   Serial.begin(9600);
 
   servo.attach(port_2.pin1());
-  
+  //servo.write(0);
+
+  //delay(2000);
 
   display.init();
   display.set(BRIGHTNESS_2);
   //splay.display((uint8_t)1, (uint8_t)1);
 
-  TIMSK2 = (TIMSK2 & B11111110) | 0x01;
-  TCCR2B = (TCCR2B & B11111000) | 0x07;
-
-
   rgbled.setColor(0,255,255,255);
   rgbled.show();
+
+  //onboard button
+  pinMode(A7, INPUT);
+
+    // timer set for interrupt
+  TIMSK2 = (TIMSK2 & B11111110) | 0x01;
+  TCCR2B = (TCCR2B & B11111000) | 0x07;
 }
 
 
@@ -87,9 +93,29 @@ void loop() {
 
 
 //for (uint16_t angle = 0; angle < 180; angle++){
-   display.display((uint16_t)angle);
-   //display.display(rotatingUltrasonic.distanceCm());
+   //display.display((uint16_t)angle);
+   //distanceToAobstacle[angle] = rotatingUltrasonic.distanceCm();
+   display.display(rotatingUltrasonic.distanceCm());
    servo.write(angle);
+/*
+if((0 ^ (analogRead(A7) > 10 ? 0 : 1))){
+
+  char format[] = "Angle: %d Distance: %d";
+  char command[50] = "";
+  
+   for(int i = 0; i < 180; i++){
+      sprintf(command,format,i, distanceToAobstacle[i]);
+      Serial.println(command);
+
+       //Serial.print("Angle: ");
+       //Serial.print(i);
+       //Serial.print(distanceToAobstacle[i]);
+
+    }
+  Serial.println(); 
+}
+*/
+
 //   delay(100);
 //}
 
@@ -97,6 +123,15 @@ void loop() {
  // servo.write(0);
    // delay(1000);//ms
 
+
+if(angle == 100){
+ // move(1, 50 / 100.0 * 255);
+}
+
+else if(angle < 100)
+{
+  //move(1, 0);
+}
 
 
   // delay(10);//ms
@@ -130,4 +165,24 @@ ISR(TIMER2_OVF_vect){
         //rgbled.setColor(0,0,255,0);
         //rgbled.show();
       }
+}
+
+void move(int direction, int speed) {
+  int leftSpeed = 0;
+  int rightSpeed = 0;
+  if(direction == 1) {
+    leftSpeed = speed;
+    rightSpeed = speed;
+  } else if(direction == 2) {
+    leftSpeed = -speed;
+    rightSpeed = -speed;
+  } else if(direction == 3) {
+    leftSpeed = -speed;
+    rightSpeed = speed;
+  } else if(direction == 4) {
+    leftSpeed = speed;
+    rightSpeed = -speed;
+  }
+  motor_left.run((9) == M1 ? -(leftSpeed) : (leftSpeed));
+  motor_right.run((10) == M1 ? -(rightSpeed) : (rightSpeed));
 }

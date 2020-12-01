@@ -38,19 +38,15 @@ MeDCMotor motor_left(9);
 MeDCMotor motor_right(10);
 
 
-boolean stateLED = false; // true -> on, false -> off
-boolean stateDisplay = false; //true -> on, false -> off
 
-char string_data[] = "Hallo Maro";
-int move_times = sizeof(string_data)*6;
 
-int distanceToAobstacle[180];
+uint16_t distanceToAobstacle[180];
 
-volatile byte state = LOW;
+//volatile byte state = LOW;
 
 volatile uint16_t angle = 0;
 volatile uint16_t rotation_direction = 1; // is 1 or -1
-volatile uint16_t rotation_speed = 2; // is 1 or -1
+volatile uint16_t rotation_speed = 1; // is 1 or -1
 
 
 void _delay(float seconds) {
@@ -64,7 +60,11 @@ void setup() {
   Serial.begin(9600);
 
   servo.attach(port_2.pin1());
-  //servo.write(0);
+  //servo.write(120);
+
+  //delay(1000);
+
+  //servo.write(30);
 
   //delay(2000);
 
@@ -76,7 +76,7 @@ void setup() {
   rgbled.show();
 
   //onboard button
-  pinMode(A7, INPUT);
+  //pinMode(A7, INPUT);
 
     // timer set for interrupt
   TIMSK2 = (TIMSK2 & B11111110) | 0x01;
@@ -97,44 +97,10 @@ void loop() {
    //distanceToAobstacle[angle] = rotatingUltrasonic.distanceCm();
    display.display(rotatingUltrasonic.distanceCm());
    servo.write(angle);
-/*
-if((0 ^ (analogRead(A7) > 10 ? 0 : 1))){
-
-  char format[] = "Angle: %d Distance: %d";
-  char command[50] = "";
-  
-   for(int i = 0; i < 180; i++){
-      sprintf(command,format,i, distanceToAobstacle[i]);
-      Serial.println(command);
-
-       //Serial.print("Angle: ");
-       //Serial.print(i);
-       //Serial.print(distanceToAobstacle[i]);
-
-    }
-  Serial.println(); 
-}
-*/
-
-//   delay(100);
-//}
+   delay(10);
 
 
- // servo.write(0);
-   // delay(1000);//ms
 
-
-if(angle == 100){
- // move(1, 50 / 100.0 * 255);
-}
-
-else if(angle < 100)
-{
-  //move(1, 0);
-}
-
-
-  // delay(10);//ms
 }
 
 
@@ -151,20 +117,7 @@ ISR(TIMER2_OVF_vect){
       rotation_direction = 1;  
     }
 
-  
-   state = !state;
-
-   if(state==LOW){
-         //rgbled.setColor(0,255,0,0);
-         //rgbled.show();
-    
-    }
-    else
-    {
-      
-        //rgbled.setColor(0,0,255,0);
-        //rgbled.show();
-      }
+ 
 }
 
 void move(int direction, int speed) {

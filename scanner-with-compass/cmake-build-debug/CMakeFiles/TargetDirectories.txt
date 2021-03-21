@@ -1,0 +1,5 @@
+/Users/manuel/workspaces/mbot/scanner-with-compass/cmake-build-debug/CMakeFiles/scanner_with_compass-size.dir
+/Users/manuel/workspaces/mbot/scanner-with-compass/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/manuel/workspaces/mbot/scanner-with-compass/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/manuel/workspaces/mbot/scanner-with-compass/cmake-build-debug/CMakeFiles/scanner_with_compass.dir
+/Users/manuel/workspaces/mbot/scanner-with-compass/cmake-build-debug/CMakeFiles/uno_CORE.dir

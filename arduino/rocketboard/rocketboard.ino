@@ -28,7 +28,7 @@
 //MePort input(PORT_1);
 MePotentiometer potentiometer(PORT_1);
 
-//Port 3
+//Port 3: matrix led
 MeLEDMatrix ledMatrix(PORT_3);
 unsigned char drawBuffer[16];
 unsigned char *drawTemp;
@@ -37,20 +37,32 @@ MeBuzzer buzzer;
 MeLightSensor lightsensor(6);
 
 // Port 4 - RGB
-MeDCMotor fan(PORT_4);
-int16_t FAN_SPEED = 200;
+MeRGBLed rgbled(PORT_4);
 
-boolean stateLED = false; // true -> on, false -> off
-boolean stateDisplay = false; //true -> on, false -> off
 
-char string_data[] = "Hallo Maro";
-int move_times = sizeof(string_data)*6;
+uint8_t counter = 65;
 
-uint8_t Bitmap_Heart[16]=
+uint8_t index, red, green, blue =0;
+
+uint8_t Bitmap_Rocket[16]=
 {
- 0x00,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,0x44,0x42,0x21,0x21,0x42,0x44,0x38,
+ 0b00011000,
+ 0b00011000,
+ 0b00011000,
+ 0b00100100,
+ 0b00100100,
+ 0b01000010,
+ 0b10000001,
+ 0b10000001,
+ 0b10000001,
+ 0b10000001,
+ 0b01000010,
+ 0b01000010,
+ 0b00100100,
+ 0b00100100,
+ 0b01000010,
+ 0b00000000,
 };
-
 
 void _delay(float seconds) {
   long endTime = millis() + seconds * 1000;
@@ -74,24 +86,36 @@ void setup() {
   //fan.run(FAN_SPEED);
   //fan.stop();
   //delay(500);
+    /*
+    rgbled.setColor(0,0,0,0);
+    rgbled.setColor(1,0,0,0);
+    rgbled.setColor(2,0,0,0);
+    rgbled.setColor(3,0,0,0);
+    
+    rgbled.show();
+    */
+
+    rgbled.reset(PORT_4);
+    rgbled.show();
 
 
 welcome();
 }
 
 void welcome(){
-return;
 
- for(int16_t i=14; i>-2-move_times; i--){
+
+  ledMatrix.showNum(3);
+  delay(1000);//ms
   
-      ledMatrix.drawStr(i,7,string_data);
-      delay(75);
- }
+  ledMatrix.showNum(2);
+  delay(1000);//ms
   
-  ledMatrix.drawBitmap(0, 0, sizeof(Bitmap_Heart), Bitmap_Heart);
-  delay(1000);
+  ledMatrix.showNum(1);
+  delay(1000);//ms
   
-  return;    
+  ledMatrix.drawBitmap(0, 0, sizeof(Bitmap_Rocket), Bitmap_Rocket);
+     
 }
 
 void _loop() {
@@ -100,12 +124,21 @@ void _loop() {
 void loop() {
   _loop();
 
+   
+    counter += 13;
+    Bitmap_Rocket[15] = counter;
+    ledMatrix.drawBitmap(0, 0, sizeof(Bitmap_Rocket), Bitmap_Rocket);
 
+    index = counter & 0b11;
+    red = counter | 0b10000000;
+    green = counter * 77;
+    rgbled.setColor(index, red, green, blue);
+    rgbled.show();
  
-    ledMatrix.showNum(readSlider());
+    //ledMatrix.showNum(readSlider());
  
 
-  delay(1000);//ms
+    delay(100);//ms
 }
 
 
